@@ -2,6 +2,7 @@
 using System;
 using System.Linq;
 using Worktime.Core;
+using Worktime.Core.CRUD;
 using Worktime.Core.Models;
 
 namespace Worktime.Tests.DatabaseTests
@@ -53,7 +54,7 @@ namespace Worktime.Tests.DatabaseTests
             var db = Database.GetMemoryContext();
             var processor = new UserProcessor(db);
             Assert.Throws<ArgumentException>(() => processor.Delete(Guid.NewGuid()));
-            Assert.Throws<ArgumentException>(() => processor.Create(new WTUser { Id = Guid.Empty }));
+            Assert.Throws<ArgumentException>(() => processor.Delete(Guid.Empty));
         }
     }
 }
