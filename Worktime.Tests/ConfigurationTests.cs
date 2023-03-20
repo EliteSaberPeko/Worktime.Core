@@ -16,7 +16,5 @@ namespace Worktime.Tests
             var success = Configuration.GetConnectionString(out string connectionString, out string error);
             Assert.IsTrue(success);
         }
-
-        
     }
 }
