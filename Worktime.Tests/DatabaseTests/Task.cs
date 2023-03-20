@@ -1,10 +1,6 @@
 ﻿using NUnit.Framework;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Worktime.Core;
 using Worktime.Core.CRUD;
 using Worktime.Core.Models;
 
@@ -74,7 +70,11 @@ namespace Worktime.Tests.DatabaseTests
         {
             var db = Database.GetMemoryContext();
             var processor = new TaskProcessor(db);
-            var task = db.Tasks.First();
+
+            var task = new WTTask();
+            Assert.Throws<ArgumentException>(() => processor.Update(task));
+
+            task = db.Tasks.First();
             task.Name = string.Empty;
             Assert.Throws<ArgumentException>(() => processor.Update(task));
 

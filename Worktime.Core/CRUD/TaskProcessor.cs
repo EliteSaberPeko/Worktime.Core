@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Worktime.Core.Models;
+﻿using Worktime.Core.Models;
 
 namespace Worktime.Core.CRUD
 {
@@ -16,12 +11,13 @@ namespace Worktime.Core.CRUD
         }
         public void Create(WTTask task)
         {
+            var user = _db.Users.Find(task.WTUserId);
             if(string.IsNullOrWhiteSpace(task.Name))
             {
                 string msg = "Name is empty!";
                 throw new ArgumentException(msg);
             }
-            if(task.WTUserId == Guid.Empty)
+            if(user == null)
             {
                 string msg = "User is not found!";
                 throw new ArgumentException(msg);
@@ -31,9 +27,10 @@ namespace Worktime.Core.CRUD
         public void Update(WTTask newTask)
         {
             var task = _db.Tasks.Find(newTask.Id);
+            var user = _db.Users.Find(newTask.WTUserId);
             if(task == null)
             {
-                string msg = "User is not found!";
+                string msg = "Task is not found!";
                 throw new ArgumentException(msg);
             }
             if (string.IsNullOrWhiteSpace(task.Name))
@@ -41,11 +38,19 @@ namespace Worktime.Core.CRUD
                 string msg = "Name is empty!";
                 throw new ArgumentException(msg);
             }
-            if (task.WTUserId == Guid.Empty)
+            if (user == null)
             {
                 string msg = "User is not found!";
                 throw new ArgumentException(msg);
             }
+
+            task.Name = newTask.Name;
+            task.Description = newTask.Description;
+            task.TotalTime = newTask.TotalTime;
+            task.Completed = newTask.Completed;
+            task.WTUserId = newTask.WTUserId;
+            task.User = user;
+
             _db.Tasks.Update(task);
         }
         public void Delete(int id)
