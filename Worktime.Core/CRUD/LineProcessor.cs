@@ -26,6 +26,8 @@ namespace Worktime.Core.CRUD
 
             _db.Lines.Add(line);
         }
+        public IEnumerable<WTLine> ReadAsIEnumerable(int taskId) => _db.Lines.Where(x => x.WTTaskId == taskId).AsEnumerable();
+        public IQueryable<WTLine> ReadAsIQueryable(int taskId) => _db.Lines.Where(x => x.WTTaskId == taskId).AsQueryable();
         public void Update(WTLine newLine)
         {
             var task = _db.Tasks.Find(newLine.WTTaskId);

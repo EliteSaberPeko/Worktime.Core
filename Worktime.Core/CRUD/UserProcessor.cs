@@ -18,6 +18,16 @@ namespace Worktime.Core
             }
             _db.Users.Add(user);
         }
+        public WTUser Read(Guid id)
+        {
+            var user = _db.Users.Find(id);
+            if(user == null)
+            {
+                string msg = "User is not found!";
+                throw new ArgumentException(msg);
+            }
+            return user;
+        }
         public void Delete(Guid id)
         {
             var user = _db.Users.Find(id);

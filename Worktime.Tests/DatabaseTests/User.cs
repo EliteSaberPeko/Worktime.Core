@@ -37,6 +37,14 @@ namespace Worktime.Tests.DatabaseTests
             Assert.Throws<ArgumentException>(() => processor.Create(new WTUser { Id = Guid.Empty }));
         }
         [Test]
+        public void CanRead()
+        {
+            var db = Database.GetMemoryContext();
+            var user = db.Users.First();
+            var processor = new UserProcessor(db);
+            Assert.AreEqual(user, processor.Read(user.Id));
+        }
+        [Test]
         public void CanDelete()
         {
             var db = Database.GetMemoryContext();

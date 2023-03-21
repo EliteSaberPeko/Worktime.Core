@@ -56,6 +56,17 @@ namespace Worktime.Tests.DatabaseTests
             Assert.Throws<ArgumentException>(() => processor.Create(new WTTask { Name = "Test", WTUserId = Guid.Empty }));
         }
         [Test]
+        public void CanRead()
+        {
+            var db = Database.GetMemoryContext();
+            var processor = new TaskProcessor(db);
+            var user = db.Users.First();
+            var ienum = processor.ReadAsIEnumerable(user.Id);
+            var iquer = processor.ReadAsIQueryable(user.Id);
+            Assert.AreEqual("First", ienum.First().Name);
+            Assert.AreEqual("First", iquer.First().Name);
+        }
+        [Test]
         public void CanUpdate()
         {
             var db = Database.GetMemoryContext();

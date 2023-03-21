@@ -29,6 +29,34 @@ namespace Worktime.Core
         }
         #endregion
 
+        #region Read
+        public WTUser Read(Guid id)
+        {
+            UserProcessor processor = new(_db);
+            return processor.Read(id);
+        }
+        public IEnumerable<WTTask> ReadAsIEnumerable(Guid userId)
+        {
+            TaskProcessor processor = new(_db);
+            return processor.ReadAsIEnumerable(userId);
+        }
+        public IQueryable<WTTask> ReadAsIQueryable(Guid userId)
+        {
+            TaskProcessor processor = new(_db);
+            return processor.ReadAsIQueryable(userId);
+        }
+        public IEnumerable<WTLine> ReadAsIEnumerable(int taskId)
+        {
+            LineProcessor processor = new(_db);
+            return processor.ReadAsIEnumerable(taskId);
+        }
+        public IQueryable<WTLine> ReadAsIQueryable(int taskId)
+        {
+            LineProcessor processor = new(_db);
+            return processor.ReadAsIQueryable(taskId);
+        } 
+        #endregion
+
         #region Update
         public void Update(WTTask newTask)
         {

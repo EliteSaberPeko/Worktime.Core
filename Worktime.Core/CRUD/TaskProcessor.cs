@@ -24,6 +24,8 @@ namespace Worktime.Core.CRUD
             }
             _db.Tasks.Add(task);
         }
+        public IEnumerable<WTTask> ReadAsIEnumerable(Guid userId) => _db.Tasks.Where(x => x.WTUserId == userId).AsEnumerable();
+        public IQueryable<WTTask> ReadAsIQueryable(Guid userId) => _db.Tasks.Where(x => x.WTUserId == userId).AsQueryable();
         public void Update(WTTask newTask)
         {
             var task = _db.Tasks.Find(newTask.Id);

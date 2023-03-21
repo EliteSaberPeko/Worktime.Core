@@ -23,6 +23,7 @@ namespace Worktime.Tests.DatabaseTests
             };
             var line = new WTLine()
             {
+                Date = new DateTime(2023, 3, 20).ToUniversalTime(),
                 Task = task,
                 WTTaskId = task.Id
             };
@@ -62,6 +63,23 @@ namespace Worktime.Tests.DatabaseTests
             var processor = new LineProcessor(db);
             Assert.Throws<ArgumentException>(() => processor.Create(line));
             Assert.Throws<ArgumentException>(() => processor.Create(new WTLine { WTTaskId = 0 }));
+        }
+        [Test]
+        public void CanRead()
+        {
+            var db = Database.GetMemoryContext();
+            var task = db.Tasks.First();
+            var line = db.Lines.First();
+            var processor = new LineProcessor(db);
+            var ie = processor.ReadAsIEnumerable(task.Id);
+            var iq = processor.ReadAsIQueryable(task.Id);
+            Assert.AreEqual(line, ie.First());
+            Assert.AreEqual(line.Date, ie.First().Date);
+            Assert.AreEqual(new DateTime(2023, 3, 20).ToUniversalTime(), ie.First().Date);
+
+            Assert.AreEqual(line, iq.First());
+            Assert.AreEqual(line.Date, iq.First().Date);
+            Assert.AreEqual(new DateTime(2023, 3, 20).ToUniversalTime(), iq.First().Date);
         }
         [Test]
         public void CanUpdate()
