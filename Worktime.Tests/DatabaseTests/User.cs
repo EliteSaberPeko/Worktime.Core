@@ -24,17 +24,29 @@ namespace Worktime.Tests.DatabaseTests
             var user = new WTUser { Id = Guid.NewGuid() };
             var db = Database.GetMemoryContext();
             var processor = new UserProcessor(db);
-            processor.Create(user);
-            db.SaveChanges();
+            var result = processor.Create(user);
+
+            Assert.IsTrue(result.Success);
         }
         [Test]
-        public void CreateEmpty()
+        public void CreateIvalid()
         {
             var user = new WTUser();
             var db = Database.GetMemoryContext();
             var processor = new UserProcessor(db);
-            Assert.Throws<ArgumentException>(() => processor.Create(user));
-            Assert.Throws<ArgumentException>(() => processor.Create(new WTUser { Id = Guid.Empty }));
+
+            var result = processor.Create(user);
+            Assert.IsFalse(result.Success);
+            Assert.AreEqual("User is empty!", result.Message);
+
+            result = processor.Create(new WTUser { Id = Guid.Empty });
+            Assert.IsFalse(result.Success);
+            Assert.AreEqual("User is empty!", result.Message);
+
+            user = db.Users.First();
+            result = processor.Create(user);
+            Assert.IsFalse(result.Success);
+            Assert.AreEqual("User is exist!", result.Message);
         }
         [Test]
         public void CanRead()
@@ -43,6 +55,7 @@ namespace Worktime.Tests.DatabaseTests
             var user = db.Users.First();
             var processor = new UserProcessor(db);
             Assert.AreEqual(user, processor.Read(user.Id));
+            Assert.IsNull(processor.Read(Guid.NewGuid()));
         }
         [Test]
         public void CanDelete()
@@ -51,18 +64,26 @@ namespace Worktime.Tests.DatabaseTests
             var user = new WTUser { Id = Guid.NewGuid() };
             var processor = new UserProcessor(db);
             processor.Create(user);
-            processor.Delete(user.Id);
+
+            var result = processor.Delete(user.Id);
+            Assert.IsTrue(result.Success);
+
             user = db.Users.First();
-            processor.Delete(user.Id);
-            db.SaveChanges();
+            result = processor.Delete(user.Id);
+            Assert.IsTrue(result.Success);
         }
         [Test]
         public void DeleteEmpty()
         {
             var db = Database.GetMemoryContext();
             var processor = new UserProcessor(db);
-            Assert.Throws<ArgumentException>(() => processor.Delete(Guid.NewGuid()));
-            Assert.Throws<ArgumentException>(() => processor.Delete(Guid.Empty));
+            var result = processor.Delete(Guid.NewGuid());
+            Assert.IsFalse(result.Success);
+            Assert.AreEqual("User was not found!", result.Message);
+
+            result = processor.Delete(Guid.Empty);
+            Assert.IsFalse(result.Success);
+            Assert.AreEqual("User was not found!", result.Message);
         }
     }
 }
