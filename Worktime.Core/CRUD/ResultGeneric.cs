@@ -4,12 +4,12 @@ namespace Worktime.Core.CRUD
 {
     internal static class ResultGeneric
     {
-        internal static Result Execute<T>(IEnumerable<T> items, Func<T, Result> func)
+        internal static Result<T> Execute<T>(IEnumerable<T> items, Result<T> result, Func<T, Result<T>, Result<T>> func)
         {
             int index = 0;
             foreach (var item in items)
             {
-                var result = func(item);
+                result = func(item, result);
                 if (!result.Success)
                 {
                     result.Message += $" Index: {index}";
@@ -17,7 +17,7 @@ namespace Worktime.Core.CRUD
                 }
                 index++;
             }
-            return new Result() { Success = true };
+            return result;
         }
     }
 }

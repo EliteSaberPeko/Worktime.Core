@@ -236,14 +236,14 @@ namespace Worktime.Tests.DatabaseTests
             var db = Database.GetMemoryContext();
             var task = db.Tasks.First();
             var processor = new TaskProcessor(db);
-            var result = processor.Delete(task.Id);
+            var result = processor.Delete(task);
             Assert.IsTrue(result.Success);
         }
         [Test]
         public void CanDeleteMany()
         {
             var db = Database.GetMemoryContext();
-            var tasks = db.Tasks.Select(x => x.Id).ToList();
+            var tasks = db.Tasks.ToList();
             var processor = new TaskProcessor(db);
             var result = processor.Delete(tasks);
             Assert.IsTrue(result.Success);
@@ -253,7 +253,7 @@ namespace Worktime.Tests.DatabaseTests
         {
             var db = Database.GetMemoryContext();
             var processor = new TaskProcessor(db);
-            var result = processor.Delete(0);
+            var result = processor.Delete(new WTTask());
             Assert.IsFalse(result.Success);
             Assert.AreEqual("Task was not found!", result.Message);
         }
@@ -262,8 +262,8 @@ namespace Worktime.Tests.DatabaseTests
         {
             var db = Database.GetMemoryContext();
             var processor = new TaskProcessor(db);
-            var tasks = db.Tasks.Select(x => x.Id).ToList();
-            tasks[1] = 0;
+            var tasks = db.Tasks.ToList();
+            tasks[1] = new WTTask();
             var result = processor.Delete(tasks);
             Assert.IsFalse(result.Success);
             Assert.AreEqual("Task was not found! Index: 1", result.Message);

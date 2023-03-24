@@ -9,17 +9,17 @@ namespace Worktime.Core
         {
             _db = db;
         }
-        public Result Create(WTUser user)
+        public Result<WTUser> Create(WTUser user)
         {
             if (user == null || user.Id == Guid.Empty)
-                return new Result() { Message = "User is empty!", Success = false };
+                return new Result<WTUser>() { Message = "User is empty!", Success = false };
 
             if (_db.Users.Find(user.Id) != null)
-                return new Result() { Message = "User is exist!", Success = false };
+                return new Result<WTUser>() { Message = "User is exist!", Success = false };
 
-            _db.Users.Add(user);
+            var item = _db.Users.Add(user).Entity;
             _db.SaveChanges();
-            return new Result() { Success = true };
+            return new Result<WTUser>() { Success = true, Items = new() { item } };
         }
         public WTUser? Read(Guid id)
         {
@@ -31,15 +31,15 @@ namespace Worktime.Core
             //}
             return user;
         }
-        public Result Delete(Guid id)
+        public Result<WTUser> Delete(Guid id)
         {
             var user = _db.Users.Find(id);
             if (user == null)
-                return new Result() { Success = false, Message = "User was not found!" };
+                return new Result<WTUser>() { Success = false, Message = "User was not found!" };
 
-            _db.Users.Remove(user);
+            var item = _db.Users.Remove(user).Entity;
             _db.SaveChanges();
-            return new Result() { Success = true };
+            return new Result<WTUser>() { Success = true, Items = new() { item } };
         }
     }
 }

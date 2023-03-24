@@ -233,7 +233,7 @@ namespace Worktime.Tests.DatabaseTests
             var db = Database.GetMemoryContext();
             var line = db.Lines.First();
             var processor = new LineProcessor(db);
-            var result = processor.Delete(line.Id);
+            var result = processor.Delete(line);
             Assert.IsTrue(result.Success);
         }
         [Test]
@@ -242,7 +242,7 @@ namespace Worktime.Tests.DatabaseTests
             var db = Database.GetMemoryContext();
             var lines = db.Lines.ToList();
             var processor = new LineProcessor(db);
-            var result = processor.Delete(lines.Select(x => x.Id));
+            var result = processor.Delete(lines);
             Assert.IsTrue(result.Success);
         }
         [Test]
@@ -250,7 +250,7 @@ namespace Worktime.Tests.DatabaseTests
         {
             var db = Database.GetMemoryContext();
             var processor = new LineProcessor(db);
-            var result = processor.Delete(0UL);
+            var result = processor.Delete(new WTLine());
             Assert.IsFalse(result.Success);
             Assert.AreEqual("Line was not found!", result.Message);
         }
@@ -259,13 +259,13 @@ namespace Worktime.Tests.DatabaseTests
         {
             var db = Database.GetMemoryContext();
             var processor = new LineProcessor(db);
-            var lines = db.Lines.Select(x => x.Id).ToList();
-            lines.Add(0UL);
+            var lines = db.Lines.ToList();
+            lines.Add(new WTLine());
             var result = processor.Delete(lines);
             Assert.IsFalse(result.Success);
             Assert.AreEqual("Line was not found! Index: 2", result.Message);
 
-            lines = lines.Prepend(0UL).ToList();
+            lines = lines.Prepend(new WTLine()).ToList();
             result = processor.Delete(lines);
             Assert.IsFalse(result.Success);
             Assert.AreEqual("Line was not found! Index: 0", result.Message);

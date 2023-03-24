@@ -11,29 +11,32 @@ namespace Worktime.Core.CRUD
         }
 
         #region Create
-        private Result CreateOne(WTTask task)
+        private Result<WTTask> CreateOne(WTTask task, Result<WTTask> result)
         {
             var user = _db.Users.Find(task.WTUserId);
 
             if (string.IsNullOrWhiteSpace(task.Name))
-                return new Result() { Success = false, Message = "Name is empty!" };
+                return new Result<WTTask>() { Success = false, Message = "Name is empty!" };
 
             if (user == null)
-                return new Result() { Success = false, Message = "User was not found!" };
+                return new Result<WTTask>() { Success = false, Message = "User was not found!" };
 
-            _db.Tasks.Add(task);
-            return new Result() { Success = true };
+            result.Items.Add(_db.Tasks.Add(task).Entity);
+            result.Success = true;
+            return result;
         }
-        public Result Create(WTTask task)
+        public Result<WTTask> Create(WTTask task)
         {
-            var result = CreateOne(task);
+            Result<WTTask> result = new();
+            result = CreateOne(task, result);
             if (result.Success)
                 _db.SaveChanges();
             return result;
         }
-        public Result Create(IEnumerable<WTTask> task)
+        public Result<WTTask> Create(IEnumerable<WTTask> task)
         {
-            var result = ResultGeneric.Execute(task, CreateOne);
+            Result<WTTask> result = new();
+            result = ResultGeneric.Execute(task, result, CreateOne);
             if (result.Success && task.Any())
                 _db.SaveChanges();
             return result;
@@ -46,19 +49,19 @@ namespace Worktime.Core.CRUD
         #endregion
 
         #region Update
-        private Result UpdateOne(WTTask newTask)
+        private Result<WTTask> UpdateOne(WTTask newTask, Result<WTTask> result)
         {
             var task = _db.Tasks.Find(newTask.Id);
             var user = _db.Users.Find(newTask.WTUserId);
 
             if (task == null)
-                return new Result() { Success = false, Message = "Task was not found!" };
+                return new Result<WTTask>() { Success = false, Message = "Task was not found!" };
 
             if (string.IsNullOrWhiteSpace(task.Name))
-                return new Result() { Success = false, Message = "Name is empty!" };
+                return new Result<WTTask>() { Success = false, Message = "Name is empty!" };
 
             if (user == null)
-                return new Result() { Success = false, Message = "User was not found!" };
+                return new Result<WTTask>() { Success = false, Message = "User was not found!" };
 
             task.Name = newTask.Name;
             task.Description = newTask.Description;
@@ -67,19 +70,22 @@ namespace Worktime.Core.CRUD
             task.WTUserId = newTask.WTUserId;
             task.User = user;
 
-            _db.Tasks.Update(task);
-            return new Result() { Success = true };
+            result.Items.Add(_db.Tasks.Update(task).Entity);
+            result.Success = true;
+            return result;
         }
-        public Result Update(WTTask newTask)
+        public Result<WTTask> Update(WTTask newTask)
         {
-            var result = UpdateOne(newTask);
+            Result<WTTask> result = new();
+            result = UpdateOne(newTask, result);
             if (result.Success)
                 _db.SaveChanges();
             return result;
         }
-        public Result Update(IEnumerable<WTTask> tasks)
+        public Result<WTTask> Update(IEnumerable<WTTask> tasks)
         {
-            var result = ResultGeneric.Execute(tasks, UpdateOne);
+            Result<WTTask> result = new();
+            result = ResultGeneric.Execute(tasks, result, UpdateOne);
             if (result.Success && tasks.Any())
                 _db.SaveChanges();
             return result;
@@ -87,26 +93,29 @@ namespace Worktime.Core.CRUD
         #endregion
 
         #region Delete
-        private Result DeleteOne(int id)
+        private Result<WTTask> DeleteOne(WTTask item, Result<WTTask> result)
         {
-            var task = _db.Tasks.Find(id);
+            var task = _db.Tasks.Find(item.Id);
             if (task == null)
-                return new Result() { Success = false, Message = "Task was not found!" };
+                return new Result<WTTask>() { Success = false, Message = "Task was not found!" };
 
-            _db.Tasks.Remove(task);
-            return new Result() { Success = true };
+            result.Items.Add(_db.Tasks.Remove(task).Entity);
+            result.Success = true;
+            return result;
         }
-        public Result Delete(int id)
+        public Result<WTTask> Delete(WTTask task)
         {
-            var result = DeleteOne(id);
+            Result<WTTask> result = new();
+            result = DeleteOne(task, result);
             if (result.Success)
                 _db.SaveChanges();
             return result;
         }
-        public Result Delete(IEnumerable<int> ids)
+        public Result<WTTask> Delete(IEnumerable<WTTask> tasks)
         {
-            var result = ResultGeneric.Execute(ids, DeleteOne);
-            if (result.Success && ids.Any())
+            Result<WTTask> result = new();
+            result = ResultGeneric.Execute(tasks, result, DeleteOne);
+            if (result.Success && tasks.Any())
                 _db.SaveChanges();
             return result;
         } 

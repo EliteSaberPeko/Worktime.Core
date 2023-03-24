@@ -12,25 +12,44 @@ namespace Worktime.Core
         }
 
         #region Create
-        public void Create(WTUser user)
+        #region One
+        public Result<WTUser> Create(WTUser user)
         {
             UserProcessor processor = new(_db);
-            processor.Create(user);
+            var result = processor.Create(user);
+            return result;
         }
-        public void Create(WTTask task)
+        public Result<WTTask> Create(WTTask task)
         {
             TaskProcessor processor = new(_db);
-            processor.Create(task);
+            var result = processor.Create(task);
+            return result;
         }
-        public void Create(WTLine line)
+        public Result<WTLine> Create(WTLine line)
         {
             LineProcessor processor = new(_db);
-            processor.Create(line);
+            var result = processor.Create(line);
+            return result;
+        } 
+        #endregion
+        #region Many
+        public Result<WTTask> Create(IEnumerable<WTTask> tasks)
+        {
+            TaskProcessor processor = new(_db);
+            var result = processor.Create(tasks);
+            return result;
         }
+        public Result<WTLine> Create(IEnumerable<WTLine> lines)
+        {
+            LineProcessor processor = new(_db);
+            var result = processor.Create(lines);
+            return result;
+        } 
+        #endregion
         #endregion
 
         #region Read
-        public WTUser Read(Guid id)
+        public WTUser? Read(Guid id)
         {
             UserProcessor processor = new(_db);
             return processor.Read(id);
@@ -54,38 +73,75 @@ namespace Worktime.Core
         {
             LineProcessor processor = new(_db);
             return processor.ReadAsIQueryable(taskId);
-        } 
+        }
         #endregion
 
         #region Update
-        public void Update(WTTask newTask)
+        #region One
+        public Result<WTTask> Update(WTTask newTask)
         {
             TaskProcessor processor = new(_db);
-            processor.Update(newTask);
+            var result = processor.Update(newTask);
+            return result;
         }
-        public void Update(WTLine newLine)
+        public Result<WTLine> Update(WTLine newLine)
         {
             LineProcessor processor = new(_db);
-            processor.Update(newLine);
+            var result = processor.Update(newLine);
+            return result;
+        } 
+        #endregion
+        #region Many
+        public Result<WTTask> Update(IEnumerable<WTTask> newTasks)
+        {
+            TaskProcessor processor = new(_db);
+            var result = processor.Update(newTasks);
+            return result;
         }
+        public Result<WTLine> Update(IEnumerable<WTLine> newLines)
+        {
+            LineProcessor processor = new(_db);
+            var result = processor.Update(newLines);
+            return result;
+        }
+        #endregion
         #endregion
 
         #region Delete
-        public void Delete<WTUser>(Guid id)
+        #region One
+        public Result<WTUser> Delete(Guid id)
         {
             UserProcessor processor = new(_db);
-            processor.Delete(id);
+            var result = processor.Delete(id);
+            return result;
         }
-        public void Delete<WTTask>(int id)
+        public Result<WTTask> Delete(WTTask task)
         {
             TaskProcessor processor = new(_db);
-            processor.Delete(id);
+            var result = processor.Delete(task);
+            return result;
         }
-        public void Delete<WTLine>(ulong id)
+        public Result<WTLine> Delete(WTLine line)
         {
             LineProcessor processor = new(_db);
-            processor.Delete(id);
+            var result = processor.Delete(line);
+            return result;
         } 
+        #endregion
+        #region Many
+        public Result<WTTask> Delete(IEnumerable<WTTask> tasks)
+        {
+            TaskProcessor processor = new(_db);
+            var result = processor.Delete(tasks);
+            return result;
+        }
+        public Result<WTLine> Delete(IEnumerable<WTLine> lines)
+        {
+            LineProcessor processor = new(_db);
+            var result = processor.Delete(lines);
+            return result;
+        } 
+        #endregion
         #endregion
     }
 }

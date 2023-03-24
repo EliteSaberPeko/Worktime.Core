@@ -11,11 +11,11 @@ namespace Worktime.Core.CRUD
         }
 
         #region Create
-        private Result CreateOne(WTLine line)
+        private Result<WTLine> CreateOne(WTLine line, Result<WTLine> result)
         {
             var task = _db.Tasks.Find(line.WTTaskId);
             if (task == null)
-                return new Result() { Success = false, Message = "Task was not found!" };
+                return new Result<WTLine>() { Success = false, Message = "Task was not found!" };
 
             if (line.BeginTime > line.EndTime)
                 line.EndTime = line.BeginTime;
@@ -24,19 +24,22 @@ namespace Worktime.Core.CRUD
                 time /= 60;
             line.Time = time;
 
-            _db.Lines.Add(line);
-            return new Result() { Success = true };
+            result.Items.Add(_db.Lines.Add(line).Entity);
+            result.Success = true;
+            return result;
         }
-        public Result Create(WTLine line)
+        public Result<WTLine> Create(WTLine line)
         {
-            var result = CreateOne(line);
+            Result<WTLine> result = new();
+            result = CreateOne(line, result);
             if (result.Success)
                 _db.SaveChanges();
             return result;
         }
-        public Result Create(IEnumerable<WTLine> lines)
+        public Result<WTLine> Create(IEnumerable<WTLine> lines)
         {
-            var result = ResultGeneric.Execute(lines, CreateOne);
+            Result<WTLine> result = new();
+            result = ResultGeneric.Execute(lines, result, CreateOne);
             if (result.Success && lines.Any())
                 _db.SaveChanges();
             return result;
@@ -49,15 +52,15 @@ namespace Worktime.Core.CRUD
         #endregion
 
         #region Update
-        private Result UpdateOne(WTLine newLine)
+        private Result<WTLine> UpdateOne(WTLine newLine, Result<WTLine> result)
         {
             var task = _db.Tasks.Find(newLine.WTTaskId);
             var line = _db.Lines.Find(newLine.Id);
             if (line == null)
-                return new Result() { Success = false, Message = "Line was not found!" };
+                return new Result<WTLine>() { Success = false, Message = "Line was not found!" };
 
             if (task == null)
-                return new Result() { Success = false, Message = "Task was not found!" };
+                return new Result<WTLine>() { Success = false, Message = "Task was not found!" };
 
             line.Date = newLine.Date;
             line.BeginTime = newLine.BeginTime;
@@ -73,19 +76,22 @@ namespace Worktime.Core.CRUD
             task.TotalTime += time;
 
             _db.Tasks.Update(task);
-            _db.Lines.Update(line);
-            return new Result() { Success = true };
+            result.Items.Add(_db.Lines.Update(line).Entity);
+            result.Success = true;
+            return result;
         }
-        public Result Update(WTLine newLine)
+        public Result<WTLine> Update(WTLine newLine)
         {
-            var result = UpdateOne(newLine);
+            Result<WTLine> result = new();
+            result = UpdateOne(newLine, result);
             if (result.Success)
                 _db.SaveChanges();
             return result;
         }
-        public Result Update(IEnumerable<WTLine> lines)
+        public Result<WTLine> Update(IEnumerable<WTLine> lines)
         {
-            var result = ResultGeneric.Execute(lines, UpdateOne);
+            Result<WTLine> result = new();
+            result = ResultGeneric.Execute(lines, result, UpdateOne);
             if (result.Success && lines.Any())
                 _db.SaveChanges();
             return result;
@@ -93,26 +99,29 @@ namespace Worktime.Core.CRUD
         #endregion
 
         #region Delete
-        private Result DeleteOne(ulong id)
+        private Result<WTLine> DeleteOne(WTLine item, Result<WTLine> result)
         {
-            var line = _db.Lines.Find(id);
+            var line = _db.Lines.Find(item.Id);
             if (line == null)
-                return new Result() { Success = false, Message = "Line was not found!" };
+                return new Result<WTLine>() { Success = false, Message = "Line was not found!" };
 
-            _db.Lines.Remove(line);
-            return new Result() { Success = true };
+            result.Items.Add(_db.Lines.Remove(line).Entity);
+            result.Success = true;
+            return result;
         }
-        public Result Delete(ulong id)
+        public Result<WTLine> Delete(WTLine item)
         {
-            var result = DeleteOne(id);
+            Result<WTLine> result = new();
+            result = DeleteOne(item, result);
             if (result.Success)
                 _db.SaveChanges();
             return result;
         }
-        public Result Delete(IEnumerable<ulong> ids)
+        public Result<WTLine> Delete(IEnumerable<WTLine> items)
         {
-            var result = ResultGeneric.Execute(ids, DeleteOne);
-            if (result.Success && ids.Any())
+            Result<WTLine> result = new();
+            result = ResultGeneric.Execute(items, result, DeleteOne);
+            if (result.Success && items.Any())
                 _db.SaveChanges();
             return result;
         } 
