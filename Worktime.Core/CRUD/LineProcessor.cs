@@ -1,4 +1,5 @@
-﻿using Worktime.Core.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using Worktime.Core.Models;
 
 namespace Worktime.Core.CRUD
 {
@@ -48,6 +49,8 @@ namespace Worktime.Core.CRUD
 
         #region Read
         public IEnumerable<WTLine> ReadAsIEnumerable(int taskId) => _db.Lines.Where(x => x.WTTaskId == taskId).AsEnumerable();
+        public IEnumerable<WTLine> ReadAsIEnumerable(Guid userId) => _db.Lines.Include(x => x.Task).Where(x => x.Task.WTUserId == userId).AsEnumerable();
+        public IQueryable<WTLine> ReadAsIQueryable(Guid userId) => _db.Lines.Include(x => x.Task).Where(x => x.Task.WTUserId == userId).AsQueryable();
         public IQueryable<WTLine> ReadAsIQueryable(int taskId) => _db.Lines.Where(x => x.WTTaskId == taskId).AsQueryable();
         #endregion
 

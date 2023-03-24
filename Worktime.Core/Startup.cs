@@ -74,6 +74,23 @@ namespace Worktime.Core
             LineProcessor processor = new(_db);
             return processor.ReadAsIQueryable(taskId);
         }
+        public IEnumerable<WTLine> ReadRowAsIEnumerable(Guid userId)
+        {
+            LineProcessor processor = new(_db);
+            return processor.ReadAsIEnumerable(userId);
+        }
+        public IQueryable<WTLine> ReadRowAsIQueryable(Guid userId)
+        {
+            LineProcessor processor = new(_db);
+            return processor.ReadAsIQueryable(userId);
+        }
+        public IEnumerable<WTLine> GetRowsToday(Guid userId) => GetRowsOnDate(userId, DateTime.Today);
+        public IEnumerable<WTLine> GetRowsOnDate(Guid userId, DateTime date)
+        {
+            date = date.Date;
+            LineProcessor processor = new(_db);
+            return processor.ReadAsIEnumerable(userId).Where(x => x.Date == date);
+        }
         #endregion
 
         #region Update
