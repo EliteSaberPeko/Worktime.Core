@@ -51,19 +51,20 @@ namespace Worktime.Tests.DatabaseTests
             var task = db.Tasks.First();
             DateTime start = DateTime.Now,
                 end = DateTime.Now.AddHours(1);
-            double time = (end - start).Minutes / 60;
+            //double time = Math.Round((end - start).TotalHours, 2);
             var line = new WTLine()
             {
-                Date = DateTime.Now,
-                BeginTime = DateTime.Now,
-                EndTime = DateTime.Now.AddHours(1),
-                Time = time,
+                Date = DateTime.Today,
+                BeginTime = start,
+                EndTime = end,
+                //Time = time,
                 Task = task,
                 WTTaskId = task.Id
             };
             var processor = new LineProcessor(db);
             var result = processor.Create(line);
             Assert.IsTrue(result.Success);
+            Assert.AreEqual(1D, task.TotalTime);
         }
         [Test]
         public void CanCreateMany()
@@ -75,13 +76,13 @@ namespace Worktime.Tests.DatabaseTests
             {
                 DateTime start = DateTime.Now.AddHours(i),
                     end = DateTime.Now.AddHours(i + 1);
-                double time = (end - start).Minutes / 60;
+                //double time = Math.Round((end - start).TotalHours, 2);
                 var line = new WTLine()
                 {
-                    Date = DateTime.Now,
-                    BeginTime = DateTime.Now,
-                    EndTime = DateTime.Now.AddHours(1),
-                    Time = time,
+                    Date = DateTime.Today,
+                    BeginTime = start,
+                    EndTime = end,
+                    //Time = time,
                     Task = task,
                     WTTaskId = task.Id
                 };
@@ -91,6 +92,7 @@ namespace Worktime.Tests.DatabaseTests
             var processor = new LineProcessor(db);
             var result = processor.Create(lines);
             Assert.IsTrue(result.Success);
+            Assert.AreEqual(10D, task.TotalTime);
         }
         [Test]
         public void CreateInvalid()
@@ -116,13 +118,13 @@ namespace Worktime.Tests.DatabaseTests
             {
                 DateTime start = DateTime.Now.AddHours(i),
                     end = DateTime.Now.AddHours(i + 1);
-                double time = (end - start).Minutes / 60;
+                //double time = (end - start).Minutes / 60;
                 var line = new WTLine()
                 {
-                    Date = DateTime.Now,
-                    BeginTime = DateTime.Now,
-                    EndTime = DateTime.Now.AddHours(1),
-                    Time = time,
+                    Date = DateTime.Today,
+                    BeginTime = start,
+                    EndTime = end,
+                    //Time = time,
                     Task = task,
                     WTTaskId = task.Id
                 };
@@ -167,26 +169,38 @@ namespace Worktime.Tests.DatabaseTests
         {
             var db = Database.GetMemoryContext();
             var line = db.Lines.First();
+            var task = db.Tasks.Find(line.WTTaskId)!;
             line.BeginTime = DateTime.Now;
             var processor = new LineProcessor(db);
             var result = processor.Update(line);
             Assert.IsTrue(result.Success);
+            Assert.AreEqual(0D, task.TotalTime);
+
+            line.BeginTime = DateTime.Now;
+            line.EndTime = DateTime.Now.AddMinutes(45);
+            result = processor.Update(line);
+            Assert.IsTrue(result.Success);
+            Assert.AreEqual(0.75D, task.TotalTime);
         }
         [Test]
         public void CanUpdateMany()
         {
             var db = Database.GetMemoryContext();
-            var lines = db.Lines.ToList();
+            var task = db.Tasks.First();
+            var lines = db.Lines.Where(x => x.WTTaskId == task.Id).ToList();
             int buf = 0;
+            DateTime now = DateTime.Now;
             foreach (var line in lines)
             {
-                line.BeginTime = DateTime.Now.AddHours(buf);
+                line.BeginTime = now.AddHours(buf);
+                line.EndTime = line.BeginTime.AddHours(1);
                 buf++;
             }
 
             var processor = new LineProcessor(db);
             var result = processor.Update(lines);
             Assert.IsTrue(result.Success);
+            Assert.AreEqual(db.Lines.Count(x => x.WTTaskId == task.Id), task.TotalTime);
         }
         [Test]
         public void UpdateInvalid()
@@ -233,8 +247,15 @@ namespace Worktime.Tests.DatabaseTests
             var db = Database.GetMemoryContext();
             var line = db.Lines.First();
             var processor = new LineProcessor(db);
+            line.BeginTime = DateTime.Now;
+            line.EndTime = line.BeginTime.AddHours(25);
+            processor.Update(line);
+            var task = db.Tasks.Find(line.WTTaskId)!;
+            Assert.AreEqual(25D, task.TotalTime);
             var result = processor.Delete(line);
+            
             Assert.IsTrue(result.Success);
+            Assert.AreEqual(0D, task.TotalTime);
         }
         [Test]
         public void CanDeleteMany()
