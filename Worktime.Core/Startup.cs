@@ -87,7 +87,7 @@ namespace Worktime.Core
         public IEnumerable<WTLine> GetRowsToday(Guid userId) => GetRowsOnDate(userId, DateTime.Today);
         public IEnumerable<WTLine> GetRowsOnDate(Guid userId, DateTime date)
         {
-            date = date.Date;
+            date = date.ToUniversalTime();
             LineProcessor processor = new(_db);
             return processor.ReadAsIEnumerable(userId).Where(x => x.Date == date);
         }

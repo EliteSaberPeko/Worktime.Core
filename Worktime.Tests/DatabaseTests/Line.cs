@@ -226,7 +226,7 @@ namespace Worktime.Tests.DatabaseTests
             var processor = new LineProcessor(db);
 
             var lines = db.Lines.ToList();
-            ulong id = lines[1].Id;
+            var id = lines[1].Id;
             lines[1].Id = 0;
             var result = processor.Update(lines);
             Assert.IsFalse(result.Success);
