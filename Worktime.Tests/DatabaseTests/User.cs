@@ -2,7 +2,6 @@
 using System;
 using System.Linq;
 using Worktime.Core;
-using Worktime.Core.CRUD;
 using Worktime.Core.Models;
 
 namespace Worktime.Tests.DatabaseTests
@@ -23,9 +22,8 @@ namespace Worktime.Tests.DatabaseTests
         {
             var user = new WTUser { Id = Guid.NewGuid() };
             var db = Database.GetMemoryContext();
-            var processor = new UserProcessor(db);
+            var processor = new Startup(db);
             var result = processor.Create(user);
-
             Assert.IsTrue(result.Success);
         }
         [Test]
@@ -33,7 +31,7 @@ namespace Worktime.Tests.DatabaseTests
         {
             var user = new WTUser();
             var db = Database.GetMemoryContext();
-            var processor = new UserProcessor(db);
+            var processor = new Startup(db);
 
             var result = processor.Create(user);
             Assert.IsFalse(result.Success);
@@ -53,7 +51,7 @@ namespace Worktime.Tests.DatabaseTests
         {
             var db = Database.GetMemoryContext();
             var user = db.Users.First();
-            var processor = new UserProcessor(db);
+            var processor = new Startup(db);
             Assert.AreEqual(user, processor.Read(user.Id));
             Assert.IsNull(processor.Read(Guid.NewGuid()));
         }
@@ -62,7 +60,7 @@ namespace Worktime.Tests.DatabaseTests
         {
             var db = Database.GetMemoryContext();
             var user = new WTUser { Id = Guid.NewGuid() };
-            var processor = new UserProcessor(db);
+            var processor = new Startup(db);
             processor.Create(user);
 
             var result = processor.Delete(user.Id);
@@ -76,7 +74,7 @@ namespace Worktime.Tests.DatabaseTests
         public void DeleteEmpty()
         {
             var db = Database.GetMemoryContext();
-            var processor = new UserProcessor(db);
+            var processor = new Startup(db);
             var result = processor.Delete(Guid.NewGuid());
             Assert.IsFalse(result.Success);
             Assert.AreEqual("User was not found!", result.Message);

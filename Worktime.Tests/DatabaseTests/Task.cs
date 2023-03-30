@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Worktime.Core.CRUD;
+using Worktime.Core;
 using Worktime.Core.Models;
 
 namespace Worktime.Tests.DatabaseTests
@@ -54,7 +54,7 @@ namespace Worktime.Tests.DatabaseTests
                 WTUserId = user.Id,
                 User = user
             };
-            var processor = new TaskProcessor(db);
+            var processor = new Startup(db);
             var result = processor.Create(task);
             Assert.IsTrue(result.Success);
         }
@@ -63,7 +63,7 @@ namespace Worktime.Tests.DatabaseTests
         {
             var db = Database.GetMemoryContext();
             var user = db.Users.First();
-            List<WTTask> tasks = new List<WTTask>();
+            List<WTTask> tasks = new();
             for (int i = 0; i < 10; i++)
             {
                 var task = new WTTask()
@@ -77,7 +77,7 @@ namespace Worktime.Tests.DatabaseTests
                 };
                 tasks.Add(task);
             }
-            var processor = new TaskProcessor(db);
+            var processor = new Startup(db);
             var result = processor.Create(tasks);
             Assert.IsTrue(result.Success);
         }
@@ -86,7 +86,7 @@ namespace Worktime.Tests.DatabaseTests
         {
             var task = new WTTask();
             var db = Database.GetMemoryContext();
-            var processor = new TaskProcessor(db);
+            var processor = new Startup(db);
 
             var result = processor.Create(task);
             Assert.IsFalse(result.Success);
@@ -105,9 +105,9 @@ namespace Worktime.Tests.DatabaseTests
         {
             var db = Database.GetMemoryContext();
             var user = db.Users.First();
-            var processor = new TaskProcessor(db);
+            var processor = new Startup(db);
 
-            List<WTTask> tasks = new List<WTTask>();
+            List<WTTask> tasks = new();
             for (int i = 0; i < 4; i++)
             {
                 var task = new WTTask()
@@ -139,7 +139,7 @@ namespace Worktime.Tests.DatabaseTests
         public void CanRead()
         {
             var db = Database.GetMemoryContext();
-            var processor = new TaskProcessor(db);
+            var processor = new Startup(db);
             var user = db.Users.First();
             var ienum = processor.ReadAsIEnumerable(user.Id);
             var iquer = processor.ReadAsIQueryable(user.Id);
@@ -155,7 +155,7 @@ namespace Worktime.Tests.DatabaseTests
             var db = Database.GetMemoryContext();
             var task = db.Tasks.First();
             task.Name = "Updated";
-            var processor = new TaskProcessor(db);
+            var processor = new Startup(db);
             var result = processor.Update(task);
             Assert.IsTrue(result.Success);
         }
@@ -166,7 +166,7 @@ namespace Worktime.Tests.DatabaseTests
             var tasks = db.Tasks.ToList();
             tasks[0].Name = "Updated";
             tasks[1].Description = "Description updated";
-            var processor = new TaskProcessor(db);
+            var processor = new Startup(db);
             var result = processor.Update(tasks);
             Assert.IsTrue(result.Success);
         }
@@ -174,7 +174,7 @@ namespace Worktime.Tests.DatabaseTests
         public void UpdateInvalid()
         {
             var db = Database.GetMemoryContext();
-            var processor = new TaskProcessor(db);
+            var processor = new Startup(db);
 
             var task = new WTTask();
             var result = processor.Update(task);
@@ -201,7 +201,7 @@ namespace Worktime.Tests.DatabaseTests
         public void UpdateInvalidMany()
         {
             var db = Database.GetMemoryContext();
-            var processor = new TaskProcessor(db);
+            var processor = new Startup(db);
 
             var tasks = db.Tasks.ToList();
             tasks[1].Id = 0;
@@ -235,7 +235,7 @@ namespace Worktime.Tests.DatabaseTests
         {
             var db = Database.GetMemoryContext();
             var task = db.Tasks.First();
-            var processor = new TaskProcessor(db);
+            var processor = new Startup(db);
             var result = processor.Delete(task);
             Assert.IsTrue(result.Success);
         }
@@ -244,7 +244,7 @@ namespace Worktime.Tests.DatabaseTests
         {
             var db = Database.GetMemoryContext();
             var tasks = db.Tasks.ToList();
-            var processor = new TaskProcessor(db);
+            var processor = new Startup(db);
             var result = processor.Delete(tasks);
             Assert.IsTrue(result.Success);
         }
@@ -252,7 +252,7 @@ namespace Worktime.Tests.DatabaseTests
         public void DeleteEmpty()
         {
             var db = Database.GetMemoryContext();
-            var processor = new TaskProcessor(db);
+            var processor = new Startup(db);
             var result = processor.Delete(new WTTask());
             Assert.IsFalse(result.Success);
             Assert.AreEqual("Task was not found!", result.Message);
@@ -261,7 +261,7 @@ namespace Worktime.Tests.DatabaseTests
         public void DeleteEmptyMany()
         {
             var db = Database.GetMemoryContext();
-            var processor = new TaskProcessor(db);
+            var processor = new Startup(db);
             var tasks = db.Tasks.ToList();
             tasks[1] = new WTTask();
             var result = processor.Delete(tasks);

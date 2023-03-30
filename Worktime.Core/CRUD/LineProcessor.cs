@@ -19,6 +19,10 @@ namespace Worktime.Core.CRUD
             if (task == null)
                 return new Result<WTLine>() { Success = false, Message = "Task was not found!" };
 
+            line.BeginTime = line.BeginTime.ToUniversalTime();
+            line.EndTime = line.EndTime.ToUniversalTime();
+            line.Date = line.Date.ToUniversalTime();
+
             if (line.BeginTime > line.EndTime)
                 line.EndTime = line.BeginTime;
             double time = Math.Round((line.EndTime - line.BeginTime).TotalHours, 2);
@@ -70,9 +74,9 @@ namespace Worktime.Core.CRUD
             if (task == null)
                 return new Result<WTLine>() { Success = false, Message = "Task was not found!" };
 
-            line.Date = newLine.Date;
-            line.BeginTime = newLine.BeginTime;
-            line.EndTime = newLine.EndTime;
+            line.Date = newLine.Date.ToUniversalTime();
+            line.BeginTime = newLine.BeginTime.ToUniversalTime();
+            line.EndTime = newLine.EndTime.ToUniversalTime();
             if (line.BeginTime > line.EndTime)
                 line.EndTime = line.BeginTime;
             double time = Math.Round((line.EndTime - line.BeginTime).TotalHours, 2);

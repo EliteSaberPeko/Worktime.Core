@@ -10,6 +10,10 @@ namespace Worktime.Core
         {
             _db = new ApplicationContext();
         }
+        public Startup(ApplicationContext db)
+        {
+            _db = db;
+        }
 
         #region Create
         #region One
@@ -74,22 +78,15 @@ namespace Worktime.Core
             LineProcessor processor = new(_db);
             return processor.ReadAsIQueryable(taskId);
         }
-        public IEnumerable<WTLine> ReadRowAsIEnumerable(Guid userId)
+        public IEnumerable<WTLine> ReadRowsAsIEnumerable(Guid userId)
         {
             LineProcessor processor = new(_db);
             return processor.ReadAsIEnumerable(userId);
         }
-        public IQueryable<WTLine> ReadRowAsIQueryable(Guid userId)
+        public IQueryable<WTLine> ReadRowsAsIQueryable(Guid userId)
         {
             LineProcessor processor = new(_db);
             return processor.ReadAsIQueryable(userId);
-        }
-        public IEnumerable<WTLine> GetRowsToday(Guid userId) => GetRowsOnDate(userId, DateTime.Today);
-        public IEnumerable<WTLine> GetRowsOnDate(Guid userId, DateTime date)
-        {
-            date = date.ToUniversalTime();
-            LineProcessor processor = new(_db);
-            return processor.ReadAsIEnumerable(userId).Where(x => x.Date == date);
         }
         #endregion
 

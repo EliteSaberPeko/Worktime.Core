@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Worktime.Core.CRUD;
+using Worktime.Core;
 using Worktime.Core.Models;
 
 namespace Worktime.Tests.DatabaseTests
@@ -51,17 +51,15 @@ namespace Worktime.Tests.DatabaseTests
             var task = db.Tasks.First();
             DateTime start = DateTime.Now,
                 end = DateTime.Now.AddHours(1);
-            //double time = Math.Round((end - start).TotalHours, 2);
             var line = new WTLine()
             {
                 Date = DateTime.Today,
                 BeginTime = start,
                 EndTime = end,
-                //Time = time,
                 Task = task,
                 WTTaskId = task.Id
             };
-            var processor = new LineProcessor(db);
+            var processor = new Startup(db);
             var result = processor.Create(line);
             Assert.IsTrue(result.Success);
             Assert.AreEqual(1D, task.TotalTime);
@@ -76,20 +74,18 @@ namespace Worktime.Tests.DatabaseTests
             {
                 DateTime start = DateTime.Now.AddHours(i),
                     end = DateTime.Now.AddHours(i + 1);
-                //double time = Math.Round((end - start).TotalHours, 2);
                 var line = new WTLine()
                 {
                     Date = DateTime.Today,
                     BeginTime = start,
                     EndTime = end,
-                    //Time = time,
                     Task = task,
                     WTTaskId = task.Id
                 };
                 lines.Add(line);
             }
 
-            var processor = new LineProcessor(db);
+            var processor = new Startup(db);
             var result = processor.Create(lines);
             Assert.IsTrue(result.Success);
             Assert.AreEqual(10D, task.TotalTime);
@@ -99,7 +95,7 @@ namespace Worktime.Tests.DatabaseTests
         {
             var line = new WTLine();
             var db = Database.GetMemoryContext();
-            var processor = new LineProcessor(db);
+            var processor = new Startup(db);
             var result = processor.Create(line);
             Assert.IsFalse(result.Success);
             Assert.AreEqual("Task was not found!", result.Message);
@@ -118,20 +114,18 @@ namespace Worktime.Tests.DatabaseTests
             {
                 DateTime start = DateTime.Now.AddHours(i),
                     end = DateTime.Now.AddHours(i + 1);
-                //double time = (end - start).Minutes / 60;
                 var line = new WTLine()
                 {
                     Date = DateTime.Today,
                     BeginTime = start,
                     EndTime = end,
-                    //Time = time,
                     Task = task,
                     WTTaskId = task.Id
                 };
                 lines.Add(line);
             }
             lines.Add(new WTLine());
-            var processor = new LineProcessor(db);
+            var processor = new Startup(db);
             var result = processor.Create(lines);
             Assert.IsFalse(result.Success);
             Assert.AreEqual("Task was not found! Index: 4", result.Message);
@@ -150,7 +144,7 @@ namespace Worktime.Tests.DatabaseTests
             var db = Database.GetMemoryContext();
             var task = db.Tasks.First();
             var line = db.Lines.First();
-            var processor = new LineProcessor(db);
+            var processor = new Startup(db);
             var ie = processor.ReadAsIEnumerable(task.Id);
             var iq = processor.ReadAsIQueryable(task.Id);
             Assert.AreEqual(line, ie.First());
@@ -171,7 +165,7 @@ namespace Worktime.Tests.DatabaseTests
             var line = db.Lines.First();
             var task = db.Tasks.Find(line.WTTaskId)!;
             line.BeginTime = DateTime.Now;
-            var processor = new LineProcessor(db);
+            var processor = new Startup(db);
             var result = processor.Update(line);
             Assert.IsTrue(result.Success);
             Assert.AreEqual(0D, task.TotalTime);
@@ -197,7 +191,7 @@ namespace Worktime.Tests.DatabaseTests
                 buf++;
             }
 
-            var processor = new LineProcessor(db);
+            var processor = new Startup(db);
             var result = processor.Update(lines);
             Assert.IsTrue(result.Success);
             Assert.AreEqual(db.Lines.Count(x => x.WTTaskId == task.Id), task.TotalTime);
@@ -206,7 +200,7 @@ namespace Worktime.Tests.DatabaseTests
         public void UpdateInvalid()
         {
             var db = Database.GetMemoryContext();
-            var processor = new LineProcessor(db);
+            var processor = new Startup(db);
 
             var line = new WTLine();
             var result = processor.Update(line);
@@ -223,7 +217,7 @@ namespace Worktime.Tests.DatabaseTests
         public void UpdateInvalidMany()
         {
             var db = Database.GetMemoryContext();
-            var processor = new LineProcessor(db);
+            var processor = new Startup(db);
 
             var lines = db.Lines.ToList();
             var id = lines[1].Id;
@@ -246,7 +240,7 @@ namespace Worktime.Tests.DatabaseTests
         {
             var db = Database.GetMemoryContext();
             var line = db.Lines.First();
-            var processor = new LineProcessor(db);
+            var processor = new Startup(db);
             line.BeginTime = DateTime.Now;
             line.EndTime = line.BeginTime.AddHours(25);
             processor.Update(line);
@@ -262,7 +256,7 @@ namespace Worktime.Tests.DatabaseTests
         {
             var db = Database.GetMemoryContext();
             var lines = db.Lines.ToList();
-            var processor = new LineProcessor(db);
+            var processor = new Startup(db);
             var result = processor.Delete(lines);
             Assert.IsTrue(result.Success);
         }
@@ -270,7 +264,7 @@ namespace Worktime.Tests.DatabaseTests
         public void DeleteEmpty()
         {
             var db = Database.GetMemoryContext();
-            var processor = new LineProcessor(db);
+            var processor = new Startup(db);
             var result = processor.Delete(new WTLine());
             Assert.IsFalse(result.Success);
             Assert.AreEqual("Line was not found!", result.Message);
@@ -279,7 +273,7 @@ namespace Worktime.Tests.DatabaseTests
         public void DeleteEmptyMany()
         {
             var db = Database.GetMemoryContext();
-            var processor = new LineProcessor(db);
+            var processor = new Startup(db);
             var lines = db.Lines.ToList();
             lines.Add(new WTLine());
             var result = processor.Delete(lines);
