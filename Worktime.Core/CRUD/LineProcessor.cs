@@ -39,7 +39,7 @@ namespace Worktime.Core.CRUD
             if (result.Success)
             {
                 _db.SaveChanges();
-                RecalculateTotalTime(result.Items.First());
+                RecalculateTotalTime(result.Items.First().WTTaskId);
             }
             return result;
         }
@@ -50,7 +50,7 @@ namespace Worktime.Core.CRUD
             if (result.Success && lines.Any())
             {
                 _db.SaveChanges();
-                RecalculateTotalTime(result.Items.First());
+                RecalculateTotalTime(result.Items.First().WTTaskId);
             }
             return result;
         }
@@ -96,7 +96,7 @@ namespace Worktime.Core.CRUD
             if (result.Success)
             {
                 _db.SaveChanges();
-                RecalculateTotalTime(result.Items.First());
+                RecalculateTotalTime(result.Items.First().WTTaskId);
             }
             return result;
         }
@@ -107,7 +107,7 @@ namespace Worktime.Core.CRUD
             if (result.Success && lines.Any())
             {
                 _db.SaveChanges();
-                RecalculateTotalTime(result.Items.First());
+                RecalculateTotalTime(result.Items.First().WTTaskId);
             }
             return result;
         }
@@ -136,7 +136,9 @@ namespace Worktime.Core.CRUD
             if (result.Success)
             {
                 _db.SaveChanges();
-                RecalculateTotalTime(result.Items.First());
+                int taskId = result.Items.First().WTTaskId;
+                DeleteTask(taskId);
+                RecalculateTotalTime(taskId);
             }
             return result;
         }
@@ -147,21 +149,36 @@ namespace Worktime.Core.CRUD
             if (result.Success && items.Any())
             {
                 _db.SaveChanges();
-                RecalculateTotalTime(result.Items.First());
+                var tasks = items.Select(x => x.WTTaskId).Distinct().ToList();
+                foreach (var id in tasks)
+                {
+                    DeleteTask(id);
+                    RecalculateTotalTime(id);
+                }
             }
             return result;
         }
         #endregion
 
-        private void RecalculateTotalTime(WTLine item)
+        private void RecalculateTotalTime(int id)
         {
-            var task = _db.Tasks.Find(item.WTTaskId);
+            var task = _db.Tasks.Find(id);
             if(task != null)
             {
                 task.TotalTime = _db.Lines.Where(x => x.WTTaskId == task.Id).Sum(x => x.Time);
                 _db.Tasks.Update(task);
                 _db.SaveChanges();
             }
+        }
+        private void DeleteTask(int id)
+        {
+            var task = _db.Tasks.Include(x => x.Lines).FirstOrDefault(x => x.Id == id);
+            if (task == null)
+                return;
+            if (task.Lines.Any())
+                return;
+            _db.Tasks.Remove(task);
+            _db.SaveChanges();
         }
     }
 }
