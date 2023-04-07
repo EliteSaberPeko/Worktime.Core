@@ -116,7 +116,7 @@ namespace Worktime.Core.CRUD
         #region Delete
         private Result<WTLine> DeleteOne(WTLine item, Result<WTLine> result)
         {
-            var task = _db.Tasks.Find(item.WTTaskId);
+            var task = _db.Tasks.Include(x => x.Lines).FirstOrDefault(x => x.Id == item.WTTaskId);
             var line = _db.Lines.Find(item.Id);
             if (line == null)
                 return new Result<WTLine>() { Success = false, Message = "Line was not found!" };
@@ -124,6 +124,8 @@ namespace Worktime.Core.CRUD
                 return new Result<WTLine>() { Success = false, Message = "Task was not found!" };
 
             result.Items.Add(_db.Lines.Remove(line).Entity);
+            if (!task.Lines.Any())
+                _db.Tasks.Remove(task);
             result.Success = true;
             return result;
         }

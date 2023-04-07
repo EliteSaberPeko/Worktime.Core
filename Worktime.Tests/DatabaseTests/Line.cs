@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using Worktime.Core;
 using Worktime.Core.Models;
 
@@ -244,12 +245,13 @@ namespace Worktime.Tests.DatabaseTests
             line.BeginTime = DateTime.Now;
             line.EndTime = line.BeginTime.AddHours(25);
             processor.Update(line);
-            var task = db.Tasks.Find(line.WTTaskId)!;
+            var task = db.Tasks.Include(x => x.Lines).First(x => x.Id == line.WTTaskId)!;
             Assert.AreEqual(25D, task.TotalTime);
             var result = processor.Delete(line);
             
             Assert.IsTrue(result.Success);
             Assert.AreEqual(0D, task.TotalTime);
+            Assert.IsTrue(task.Lines.Any());
         }
         [Test]
         public void CanDeleteMany()
@@ -284,7 +286,18 @@ namespace Worktime.Tests.DatabaseTests
             result = processor.Delete(lines);
             Assert.IsFalse(result.Success);
             Assert.AreEqual("Line was not found! Index: 0", result.Message);
-        } 
+        }
+        [Test]
+        public void DeleteLast()
+        {
+            var db = Database.GetMemoryContext();
+            var processor = new Startup(db);
+            var lines = db.Lines.ToList();
+            var task = db.Tasks.Include(x => x.Lines).First(x => x.Id == lines.First().WTTaskId);
+            var result = processor.Delete(lines);
+            Assert.IsTrue(result.Success);
+            Assert.IsFalse(task.Lines.Any());
+        }
         #endregion
     }
 }
