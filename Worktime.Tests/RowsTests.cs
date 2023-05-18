@@ -26,8 +26,8 @@ namespace Worktime.Tests
             var lines = new List<WTLine>();
             var task = new WTTask()
             {
-                Name = "First",
-                Description = "Desc",
+                Identifier = "First",
+                Title = "Desc",
                 Completed = false,
                 TotalTime = 100,
                 WTUserId = user.Id,

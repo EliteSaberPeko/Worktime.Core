@@ -74,6 +74,7 @@ namespace Worktime.Core.CRUD
             if (task == null)
                 return new Result<WTLine>() { Success = false, Message = "Task was not found!" };
 
+            line.Description = newLine.Description;
             line.Date = newLine.Date.ToUniversalTime();
             line.BeginTime = newLine.BeginTime.ToUniversalTime();
             line.EndTime = newLine.EndTime.ToUniversalTime();

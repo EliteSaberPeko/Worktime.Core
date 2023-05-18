@@ -15,8 +15,11 @@ namespace Worktime.Core.CRUD
         {
             var user = _db.Users.Find(task.WTUserId);
 
-            if (string.IsNullOrWhiteSpace(task.Name))
-                return new Result<WTTask>() { Success = false, Message = "Name is empty!" };
+            if (string.IsNullOrWhiteSpace(task.Identifier))
+                return new Result<WTTask>() { Success = false, Message = $"{nameof(task.Identifier)} is empty!" };
+
+            if (string.IsNullOrWhiteSpace(task.Title))
+                return new Result<WTTask>() { Success = false, Message = $"{nameof(task.Title)} is empty!" };
 
             if (user == null)
                 return new Result<WTTask>() { Success = false, Message = "User was not found!" };
@@ -57,14 +60,17 @@ namespace Worktime.Core.CRUD
             if (task == null)
                 return new Result<WTTask>() { Success = false, Message = "Task was not found!" };
 
-            if (string.IsNullOrWhiteSpace(task.Name))
-                return new Result<WTTask>() { Success = false, Message = "Name is empty!" };
+            if (string.IsNullOrWhiteSpace(task.Identifier))
+                return new Result<WTTask>() { Success = false, Message = $"{nameof(task.Identifier)} is empty!" };
+
+            if (string.IsNullOrWhiteSpace(task.Title))
+                return new Result<WTTask>() { Success = false, Message = $"{nameof(task.Title)} is empty!" };
 
             if (user == null)
                 return new Result<WTTask>() { Success = false, Message = "User was not found!" };
 
-            task.Name = newTask.Name;
-            task.Description = newTask.Description;
+            task.Identifier = newTask.Identifier;
+            task.Title = newTask.Title;
             task.TotalTime = newTask.TotalTime;
             task.Completed = newTask.Completed;
             task.WTUserId = newTask.WTUserId;

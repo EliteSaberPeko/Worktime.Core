@@ -7,6 +7,7 @@
         public DateTime BeginTime { get; set; }
         public DateTime EndTime { get; set; }
         public double Time { get; set; }
+        public string? Description { get; set; }
 
         public int WTTaskId { get; set; }
         public WTTask Task { get; set; } = null!;

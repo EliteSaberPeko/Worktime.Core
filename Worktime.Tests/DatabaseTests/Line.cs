@@ -16,8 +16,8 @@ namespace Worktime.Tests.DatabaseTests
             var user = new WTUser { Id = Guid.NewGuid() };
             var task = new WTTask()
             {
-                Name = "First",
-                Description = "Desc",
+                Identifier = "First",
+                Title = "Desc",
                 Completed = false,
                 TotalTime = 100,
                 WTUserId = user.Id,
@@ -54,6 +54,7 @@ namespace Worktime.Tests.DatabaseTests
                 end = DateTime.Now.AddHours(1);
             var line = new WTLine()
             {
+                Description = "Description",
                 Date = DateTime.Today,
                 BeginTime = start,
                 EndTime = end,
@@ -77,6 +78,7 @@ namespace Worktime.Tests.DatabaseTests
                     end = DateTime.Now.AddHours(i + 1);
                 var line = new WTLine()
                 {
+                    Description = $"Description {i}",
                     Date = DateTime.Today,
                     BeginTime = start,
                     EndTime = end,
@@ -171,11 +173,13 @@ namespace Worktime.Tests.DatabaseTests
             Assert.IsTrue(result.Success);
             Assert.AreEqual(0D, task.TotalTime);
 
+            line.Description = "Test";
             line.BeginTime = DateTime.Now;
             line.EndTime = DateTime.Now.AddMinutes(45);
             result = processor.Update(line);
             Assert.IsTrue(result.Success);
             Assert.AreEqual(0.75D, task.TotalTime);
+            Assert.AreEqual("Test", result.Items.First().Description);
         }
         [Test]
         public void CanUpdateMany()

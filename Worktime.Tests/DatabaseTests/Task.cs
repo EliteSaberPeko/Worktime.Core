@@ -15,8 +15,8 @@ namespace Worktime.Tests.DatabaseTests
             var user = new WTUser { Id = Guid.NewGuid() };
             var task = new WTTask()
             {
-                Name = "First",
-                Description = "Desc",
+                Identifier = "First",
+                Title = "Desc",
                 Completed = false,
                 TotalTime = 100,
                 WTUserId = user.Id,
@@ -28,8 +28,8 @@ namespace Worktime.Tests.DatabaseTests
             db.Tasks.Add(task);
             task = new WTTask()
             {
-                Name = "First 2",
-                Description = "Desc 2",
+                Identifier = "First 2",
+                Title = "Desc 2",
                 Completed = false,
                 TotalTime = 102,
                 WTUserId = user.Id,
@@ -47,8 +47,8 @@ namespace Worktime.Tests.DatabaseTests
             var user = db.Users.First();
             var task = new WTTask()
             {
-                Name = "First 3",
-                Description = "Desc 3",
+                Identifier = "First 3",
+                Title = "Desc 3",
                 Completed = false,
                 TotalTime = 110,
                 WTUserId = user.Id,
@@ -68,8 +68,8 @@ namespace Worktime.Tests.DatabaseTests
             {
                 var task = new WTTask()
                 {
-                    Name = $"Test {i}",
-                    Description = $"Desc {i}",
+                    Identifier = $"Test {i}",
+                    Title = $"Desc {i}",
                     Completed = false,
                     TotalTime = 10 + i,
                     WTUserId = user.Id,
@@ -90,13 +90,13 @@ namespace Worktime.Tests.DatabaseTests
 
             var result = processor.Create(task);
             Assert.IsFalse(result.Success);
-            Assert.AreEqual("Name is empty!", result.Message);
+            Assert.AreEqual($"{nameof(WTTask.Identifier)} is empty!", result.Message);
 
-            result = processor.Create(new WTTask { Name = "Test" });
+            result = processor.Create(new WTTask { Identifier = "Test" });
             Assert.IsFalse(result.Success);
-            Assert.AreEqual("User was not found!", result.Message);
+            Assert.AreEqual($"{nameof(WTTask.Title)} is empty!", result.Message);
 
-            result = processor.Create(new WTTask { Name = "Test", WTUserId = Guid.Empty });
+            result = processor.Create(new WTTask { Identifier = "Test", Title = "Title", WTUserId = Guid.Empty });
             Assert.IsFalse(result.Success);
             Assert.AreEqual("User was not found!", result.Message);
         }
@@ -112,8 +112,8 @@ namespace Worktime.Tests.DatabaseTests
             {
                 var task = new WTTask()
                 {
-                    Name = $"Test {i}",
-                    Description = $"Desc {i}",
+                    Identifier = $"Test {i}",
+                    Title = $"Desc {i}",
                     Completed = false,
                     TotalTime = 10 + i,
                     WTUserId = user.Id,
@@ -121,12 +121,12 @@ namespace Worktime.Tests.DatabaseTests
                 };
                 tasks.Add(task);
             }
-            tasks[3].Name = string.Empty;
+            tasks[3].Identifier = string.Empty;
             var result = processor.Create(tasks);
             Assert.IsFalse(result.Success);
-            Assert.AreEqual("Name is empty! Index: 3", result.Message);
+            Assert.AreEqual($"{nameof(WTTask.Identifier)} is empty! Index: 3", result.Message);
 
-            tasks[3].Name = "Test 777";
+            tasks[3].Identifier = "Test 777";
             tasks[2].WTUserId = Guid.Empty;
             result = processor.Create(tasks);
             Assert.IsFalse(result.Success);
@@ -143,8 +143,8 @@ namespace Worktime.Tests.DatabaseTests
             var user = db.Users.First();
             var ienum = processor.ReadAsIEnumerable(user.Id);
             var iquer = processor.ReadAsIQueryable(user.Id);
-            Assert.AreEqual("First", ienum.First().Name);
-            Assert.AreEqual("First", iquer.First().Name);
+            Assert.AreEqual("First", ienum.First().Identifier);
+            Assert.AreEqual("First", iquer.First().Identifier);
         }
         #endregion
 
@@ -154,7 +154,7 @@ namespace Worktime.Tests.DatabaseTests
         {
             var db = Database.GetMemoryContext();
             var task = db.Tasks.First();
-            task.Name = "Updated";
+            task.Identifier = "Updated";
             var processor = new Startup(db);
             var result = processor.Update(task);
             Assert.IsTrue(result.Success);
@@ -164,8 +164,8 @@ namespace Worktime.Tests.DatabaseTests
         {
             var db = Database.GetMemoryContext();
             var tasks = db.Tasks.ToList();
-            tasks[0].Name = "Updated";
-            tasks[1].Description = "Description updated";
+            tasks[0].Identifier = "Updated";
+            tasks[1].Title = "Description updated";
             var processor = new Startup(db);
             var result = processor.Update(tasks);
             Assert.IsTrue(result.Success);
@@ -187,10 +187,16 @@ namespace Worktime.Tests.DatabaseTests
             Assert.IsFalse(result.Success);
             Assert.AreEqual("User was not found!", result.Message);
 
-            task.Name = string.Empty;
+            task.Identifier = string.Empty;
             result = processor.Update(task);
             Assert.IsFalse(result.Success);
-            Assert.AreEqual("Name is empty!", result.Message);
+            Assert.AreEqual($"{nameof(WTTask.Identifier)} is empty!", result.Message);
+
+            task.Identifier = "Test";
+            task.Title = string.Empty;
+            result = processor.Update(task);
+            Assert.IsFalse(result.Success);
+            Assert.AreEqual($"{nameof(WTTask.Title)} is empty!", result.Message);
 
             task.Id = 0;
             result = processor.Update(task);
@@ -216,12 +222,12 @@ namespace Worktime.Tests.DatabaseTests
             Assert.AreEqual("User was not found! Index: 0", result.Message);
 
             tasks[0].WTUserId = db.Users.First().Id;
-            tasks[0].Name = string.Empty;
+            tasks[0].Identifier = string.Empty;
             result = processor.Update(tasks);
             Assert.IsFalse(result.Success);
-            Assert.AreEqual("Name is empty! Index: 0", result.Message);
+            Assert.AreEqual($"{nameof(WTTask.Identifier)} is empty! Index: 0", result.Message);
 
-            tasks[0].Name = "Test";
+            tasks[0].Identifier = "Test";
             tasks[1] = new WTTask();
             result = processor.Update(tasks);
             Assert.IsFalse(result.Success);
